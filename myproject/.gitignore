@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+
+# Django files
+*.log
+local_settings.py
+db.sqlite3  # <-- IMPORTANT: Keeps your database local
+media/
+staticfiles/
+.env
+
+# Environments
+venv/
+env/

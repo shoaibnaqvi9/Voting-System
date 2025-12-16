@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Election Results | KIET Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        .result-card {
+            margin-bottom: 20px;
+        }
+        .candidate-row:nth-child(1) {
+            background-color: #d4edda;
+            font-weight: bold;
+        }
+        .bg-dark-blue {
+            background-color: #2c3e50;
+        }
+        .text-light-green {
+            color: #2ecc71;
+        }
+    </style>
+</head>
+<body class="bg-dark-blue text-white">
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📊 Real-Time Election Results</h2>
+        <div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary me-2">Back to Dashboard</a>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+
+    <div class="alert alert-info text-center shadow-sm">
+        <h4>Total Votes Recorded: <span class="badge bg-primary">{{ total_votes }}</span></h4>
+    </div>
+
+    <div class="row">
+        
+        <div class="col-md-6">
+            <div class="card result-card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">President Results</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for result in president_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center candidate-row">
+                        <strong>{{ result.president }}</strong> 
+                        <span class="badge bg-success rounded-pill">{{ result.count }} Votes</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No votes recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card result-card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Vice President Results</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for result in vice_president_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center candidate-row">
+                        <strong>{{ result.vice_president }}</strong> 
+                        <span class="badge bg-success rounded-pill">{{ result.count }} Votes</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No votes recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card result-card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Secretary Results</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for result in secretary_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center candidate-row">
+                        <strong>{{ result.secretary }}</strong> 
+                        <span class="badge bg-success rounded-pill">{{ result.count }} Votes</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No votes recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card result-card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Finance Manager Results</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for result in finance_manager_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center candidate-row">
+                        <strong>{{ result.finance_manager }}</strong> 
+                        <span class="badge bg-success rounded-pill">{{ result.count }} Votes</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No votes recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
