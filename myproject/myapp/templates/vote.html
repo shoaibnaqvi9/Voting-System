@@ -16,45 +16,93 @@
 
 <body class="bg-dark-blue text-white">
 <div class="container mt-5">
-    <div class="card shadow p-4">
+    <div class="card shadow p-4 text-dark">
         <h2 class="text-center mb-2">KIET Voting System</h2>
         <h3 class="text-center mb-4"><u>Cast your vote here....</u></h3>
         <div class="align align-left">
             <a href="{% url 'logout' %}" class="btn btn-danger mb-2">Logout</a>
         </div>
-        <form method="POST">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="h5">⏳ Time Left: <span id="timer" class="text-danger fw-bold">10:00</span></div>
+            <div>
+                {% if election_status %}
+                    <span class="badge bg-success">Election Active</span>
+                {% else %}
+                    <span class="badge bg-danger">Election Stopped</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <form method="POST" id="voteForm">
             {% csrf_token %}
 
-            <h5 class="alert alert-success mb-4">President</h5>
-            <select name="president" class="form-control mb-3" required>
+            <h5 class="alert alert-success mb-2">President</h5>
+            <select name="president" class="form-control mb-3" required {% if not election_status %}disabled{% endif %}>
                 <option value="">Choose</option>
-                <option value="Faizan">Faizan</option>
-                <option value="Shoaib">Shoaib</option>
+                {% for c in candidates %}
+                {% if c.position == 'President' %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+                {% endif %}
+                {% endfor %}
             </select>
 
             <h5 class="alert alert-success mb-4">Vice President</h5>
-            <select name="vice_president" class="form-control mb-3" required>
+            <select name="vice_president" class="form-control mb-3" required {% if not election_status %}disabled{% endif %}>
                 <option value="">Choose</option>
-                <option value="Akram">Akram</option>
-                <option value="Jawad">Jawad</option>
+                {% for c in candidates %}
+                {% if c.position == 'Vice President' %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+                {% endif %}
+                {% endfor %}
             </select>
 
             <h5 class="alert alert-success mb-4">Secretary</h5>
-            <select name="secretary" class="form-control mb-3" required>
+            <select name="secretary" class="form-control mb-3" required {% if not election_status %}disabled{% endif %}>
                 <option value="">Choose</option>
-                <option value="Daniyal">Daniyal</option>
-                <option value="Mohsin">Mohsin</option>
+                {% for c in candidates %}
+                {% if c.position == 'Secretary' %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+                {% endif %}
+                {% endfor %}
             </select>
-
+            
             <h5 class="alert alert-success mb-4">Finance Manager</h5>
-            <select name="finance_manager" class="form-control mb-4" required>
+            <select name="finance_manager" class="form-control mb-3" required {% if not election_status %}disabled{% endif %}>
                 <option value="">Choose</option>
-                <option value="Fahad">Fahad</option>
-                <option value="Tariq">Tariq</option>
+                {% for c in candidates %}
+                {% if c.position == 'Finance Manager' %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+                {% endif %}
+                {% endfor %}
             </select>
-
-            <button class="btn btn-success w-100">Submit Vote</button>
+            {% if election_status %}
+                <button type="submit" class="btn btn-success w-100">Submit Vote</button>
+            {% else %}
+                <button type="button" class="btn btn-secondary w-100" disabled>Voting is Closed</button>
+                <p class="text-danger text-center mt-2 small">The admin has paused the election. You cannot submit right now.</p>
+            {% endif %}
         </form>
+        
+        <script>
+        let time = 600;
+        const timerDisplay = document.getElementById('timer');
+
+        const countdown = setInterval(() => {
+            let minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timerDisplay.innerHTML = `${minutes}:${seconds}`;
+            
+            if (time <= 0) {
+                clearInterval(countdown);
+                alert("Your 10-minute voting session has expired.");
+                window.location.href = "{% url 'logout' %}";
+            }
+            time--;
+        }, 1000);
+    </script>
     </div>
 </div>
 </body>

@@ -17,7 +17,7 @@
             background-color: #2c3e50;
         }
         .text-light-green {
-            color: #2ecc71;
+            color: #4c534f;
         }
     </style>
 </head>
@@ -75,12 +75,30 @@
             </div>
         </div>
     </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="{% url 'manage_election' %}" class="text-decoration-none">
+            <div class="card bg-secondary text-white dashboard-card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title text-uppercase fw-light">Manage Election</h5>
+                    <p class="display-4 fw-bold">⚙️</p>
+                    <p class="card-text">Add/Remove candidates and start/end voting.</p>
+                </div>
+            </div>
+        </a>
+    </div>
 
     <div class="card p-4 mt-4 bg-light text-dark shadow-lg">
         <h3>Election Status & Management</h3>
-        <p class="lead">The election is currently **Active**.</p>
+        <p class="lead">
+            The election is currently:
+            {% if election_status %} <span class="badge bg-success">Active</span>
+            {% else %}
+            <span class="badge bg-danger">Closed</span>
+            {% endif %}
+        </p>
     </div>
-    
 </div>
+
 </body>
 </html>

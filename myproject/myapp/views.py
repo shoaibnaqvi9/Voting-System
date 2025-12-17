@@ -1,5 +1,5 @@
 import re
-from .models import Student, Vote
+from .models import Student, Vote, Candidate, ElectionSettings
 from django.db.models import Count
 from django.http import HttpResponse
 from django.core.mail import send_mail
@@ -93,10 +93,16 @@ def vote_page(request):
 
     student = Student.objects.get(student_id=request.session['user_id'])
 
+    status_obj = ElectionSettings.objects.first()
+    is_active = status_obj.is_active if status_obj else False
+
     if student.has_voted:
         return redirect('already_voted')
-
+    
     if request.method == 'POST':
+        if not is_active:
+            return HttpResponse("Forbidden: Voting is currently closed by Admin.", status=403)
+
         president = request.POST.get('president')
         vice_president = request.POST.get('vice_president')
         secretary = request.POST.get('secretary')
@@ -104,14 +110,15 @@ def vote_page(request):
 
         Vote.objects.create(
             student=student,
-            president=president,
-            vice_president=vice_president,
-            secretary=secretary,
-            finance_manager=finance_manager
+            president=request.POST.get('president'),
+            vice_president=request.POST.get('vice_president'),
+            secretary=request.POST.get('secretary'),
+            finance_manager=request.POST.get('finance_manager')
         )
 
         student.has_voted = True
         student.save()
+        
         send_mail(
             'Vote Successfully Cast',
             f'Dear {student.student_id},\n\nYour vote has been securely recorded for the Student Society Club election.\n\nThank you for participating!',
@@ -120,7 +127,12 @@ def vote_page(request):
             fail_silently=False,
         )
         return redirect('success')
-    return render(request, 'vote.html')
+    candidates = Candidate.objects.all()
+
+    return render(request, 'vote.html', {
+        'candidates': Candidate.objects.all(),
+        'election_status': is_active
+    })
 
 def success_page(request):
     return render(request, 'success.html')
@@ -133,16 +145,17 @@ def admin_dashboard(request):
         return redirect('login')
     
     total_votes = Vote.objects.count()
-    total_voters = Student.objects.count()
-    votes_remaining = total_voters - total_votes
+    total_voters = Student.objects.filter(role='student').count()
+    votes_remaining = max(0, total_voters - total_votes)
     
-    if votes_remaining < 0:
-        votes_remaining = 0
+    status_obj = ElectionSettings.objects.first()
+    is_active = status_obj.is_active if status_obj else False
 
     return render(request, 'admin_dashboard.html', {
         'total_votes': total_votes,
         'total_voters': total_voters,
         'votes_remaining': votes_remaining,
+        'election_status': is_active,
     })
 
 def results_page(request):
@@ -180,3 +193,32 @@ def results_page(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+# View to manage candidates and status
+def manage_election(request):
+    if request.session.get('role') != 'admin':
+        return redirect('login')
+
+    candidates = Candidate.objects.all()
+    status, created = ElectionSettings.objects.get_or_create(id=1)
+
+    if request.method == 'POST':
+        if 'add_candidate' in request.POST:
+            name = request.POST.get('name')
+            pos = request.POST.get('position')
+            Candidate.objects.create(name=name, position=pos)
+        
+        elif 'remove_candidate' in request.POST:
+            candidate_id = request.POST.get('candidate_id')
+            Candidate.objects.filter(id=candidate_id).delete()
+            
+        elif 'toggle_status' in request.POST:
+            status.is_active = not status.is_active
+            status.save()
+
+        return redirect('manage_election')
+
+    return render(request, 'manage_election.html', {
+        'candidates': candidates,
+        'status': status
+    })

@@ -19,3 +19,22 @@ class Vote(models.Model):
     def __str__(self):
         return f"Vote by {self.student.student_id}"
 
+class Candidate(models.Model):
+    POSITION_CHOICES = [
+        ('President', 'President'),
+        ('Vice President', 'Vice President'),
+        ('Secretary', 'Secretary'),
+        ('Finance Manager', 'Finance Manager'),
+    ]
+    name = models.CharField(max_length=100)
+    position = models.CharField(max_length=50, choices=POSITION_CHOICES)
+
+    def __str__(self):
+        return f"{self.name} ({self.position})"
+
+class ElectionSettings(models.Model):
+    is_active = models.BooleanField(default=False) # To start/end voting
+
+    def __str__(self):
+        return "Election Status"
+# Add dynamic candidate management and election status controls for admins.
